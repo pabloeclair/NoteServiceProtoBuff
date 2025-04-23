@@ -2,12 +2,15 @@ package tests
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"project11/internal/protos"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 )
 
 func TestService(addrs string) error {
@@ -38,6 +41,19 @@ func TestService(addrs string) error {
 		return fmt.Errorf(
 			`GetNote: expected: Name = "Ютуб каналы", Content = "MrLololoshka, Slimecicle"; actual: Name = "%s", Content = "%s"`,
 			resGet.GetName(), resGet.GetContent(),
+		)
+	}
+
+	resGetWrong, err := client.GetNote(context.Background(), &protos.NoteId{Id: 999})
+	if err == nil {
+		return fmt.Errorf(
+			`GetNote (wrong): expected: err = not found; actual: err = nil, Name = "%s", Content = "%s"`,
+			resGetWrong.GetName(), resGetWrong.GetContent(),
+		)
+	}
+	if !errors.Is(err, status.Error(codes.NotFound, "note with if = 999 not exists")) {
+		return fmt.Errorf(
+			`GetNote (wrong): expected: err = not found; actual: err = %v"`, err,
 		)
 	}
 
