@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package project11;
+
+option go_package = "internal/protos";
+option java_package = "ru.culab.week11";
+option java_multiple_files = true;
+
+message Empty {}
+
+message NoteId {
+    int32 id = 1;
+}
+
+message NoteString {
+    string name = 1;
+    string content = 2;
+}
+
+message UpdateNoteResponse {
+    int32 id = 1;
+    string name = 2;
+    string content = 3;
+}
+
+message SearchNotesResponse {
+    string pattern = 1;
+}
+
+service NoteService {
+    rpc CreateNote(NoteString) returns (NoteId);
+    rpc GetNote(NoteId) returns (NoteString);
+    rpc UpdateNote(UpdateNoteResponse) returns (Empty);
+    rpc DeleteNote(NoteId) returns (Empty);
+    rpc SearchNotes(SearchNotesResponse) returns (stream NoteId);
+}
