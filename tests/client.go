@@ -155,5 +155,27 @@ func TestService(addrs string) error {
 	}
 	log.Println("TestDeleteNote pass")
 
+	// Clear
+	_, err = client.DeleteNote(context.Background(), &protos.NoteId{Id: 2})
+	if err != nil {
+		return fmt.Errorf("сlearing: error: %w", err)
+	}
+	_, err = client.DeleteNote(context.Background(), &protos.NoteId{Id: 3})
+	if err != nil {
+		return fmt.Errorf("сlearing: error: %w", err)
+	}
+	_, err = client.DeleteNote(context.Background(), &protos.NoteId{Id: 4})
+	if err != nil {
+		return fmt.Errorf("сlearing: error: %w", err)
+	}
+	listId, err = client.SearchNotes(context.Background(), &protos.SearchNotesRequest{Pattern: ""})
+	if err != nil {
+		return fmt.Errorf("сlearing: error: %w", err)
+	}
+	if len(listId.GetId()) != 0 {
+		return fmt.Errorf("сlearing: expected: memory = []; actual: memory = %v", listId.GetId())
+	}
+	log.Println("Clear pass")
+
 	return nil
 }
