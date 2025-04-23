@@ -32,6 +32,19 @@ func TestService(addrs string) error {
 		return fmt.Errorf("CreateNote: expected: id = 1; actual: id = %d", resCreate.GetId())
 	}
 
+	noteStringWrong := &protos.NoteString{Name: "", Content: ""}
+	resCreate, err = client.CreateNote(context.Background(), noteStringWrong)
+	if err == nil {
+		return fmt.Errorf(
+			`CreateNote (wrong): expected: err = invalid argument; actual: err = nil, Id = %d"`, resCreate.GetId(),
+		)
+	}
+	if !errors.Is(err, status.Error(codes.InvalidArgument, "fields should not be empty")) {
+		return fmt.Errorf(
+			`CreateNote (wrong): expected: err = not found; actual: err = %v"`, err,
+		)
+	}
+
 	// Test Get
 	resGet, err := client.GetNote(context.Background(), resCreate)
 	if err != nil {
