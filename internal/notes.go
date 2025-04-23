@@ -7,6 +7,8 @@ import (
 	"strings"
 	"sync"
 
+	"slices"
+
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -44,7 +46,7 @@ func (s *NoteServer) GetNote(ctx context.Context, req *protos.NoteId) (*protos.N
 	res := s.notes[req.GetId()]
 	s.mu.RUnlock()
 	if res.name == "" && res.content == "" {
-		return nil, status.Error(codes.NotFound, fmt.Sprintf("note with if = %d not exists", req.GetId()))
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("note with id = %d not exists", req.GetId()))
 	}
 	noteRes := &protos.NoteString{Name: res.name, Content: res.content}
 	return noteRes, nil
@@ -61,7 +63,7 @@ func (s *NoteServer) UpdateNote(ctx context.Context, req *protos.UpdateNoteReque
 	s.mu.RUnlock()
 
 	if res.name == "" && res.content == "" {
-		return nil, status.Error(codes.NotFound, fmt.Sprintf("note with if = %d not exists", req.GetId()))
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("note with id = %d not exists", req.GetId()))
 	}
 
 	s.mu.Lock()
@@ -77,11 +79,12 @@ func (s *NoteServer) SearchNotes(ctx context.Context, req *protos.SearchNotesReq
 	pattern := req.GetPattern()
 	s.mu.RLock()
 	for id, note := range s.notes {
-		if strings.Contains(note.name, pattern) || strings.Contains(note.content, pattern) {
+		if strings.Contains(strings.ToLower(note.name), pattern) || strings.Contains(strings.ToLower(note.content), pattern) {
 			res = append(res, id)
 		}
 	}
 	s.mu.RUnlock()
+	slices.Sort(res)
 
 	return &protos.NoteIdRepeated{Id: res}, nil
 }
