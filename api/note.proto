@@ -17,20 +17,20 @@ message NoteString {
     string content = 2;
 }
 
-message UpdateNoteResponse {
+message UpdateNoteRequest {
     int32 id = 1;
     string name = 2;
     string content = 3;
 }
 
-message SearchNotesResponse {
+message SearchNotesRequest {
     string pattern = 1;
 }
 
 service NoteService {
     rpc CreateNote(NoteString) returns (NoteId);
     rpc GetNote(NoteId) returns (NoteString);
-    rpc UpdateNote(UpdateNoteResponse) returns (Empty);
+    rpc UpdateNote(UpdateNoteRequest) returns (Empty);
     rpc DeleteNote(NoteId) returns (Empty);
-    rpc SearchNotes(SearchNotesResponse) returns (stream NoteId);
+    rpc SearchNotes(SearchNotesRequest) returns (stream NoteId);
 }
