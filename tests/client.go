@@ -128,5 +128,32 @@ func TestService(addrs string) error {
 	}
 	log.Println("TestSearchNotes pass")
 
+	// Test Delete
+	_, err = client.DeleteNote(context.Background(), &protos.NoteId{Id: 1})
+	if err != nil {
+		return fmt.Errorf("DeleteNote: error: %w", err)
+	}
+	resGet, err = client.GetNote(context.Background(), &protos.NoteId{Id: 1})
+	if err == nil {
+		return fmt.Errorf(
+			`DeleteNote: expected: err = not found; actual: err = nil, Name = "%s", Content = "%s"`,
+			resGet.GetName(), resGet.GetContent(),
+		)
+	}
+	if !errors.Is(err, status.Error(codes.NotFound, "note with id = 1 not exists")) {
+		return fmt.Errorf(
+			`DeleteNote: expected: err = not found; actual: err = %v"`, err,
+		)
+	}
+
+	resCreate, err = client.CreateNote(context.Background(), &protos.NoteString{Name: "test", Content: "test"})
+	if err != nil {
+		return fmt.Errorf("DeleteNote (create): error: %w", err)
+	}
+	if resCreate.GetId() != 4 {
+		return fmt.Errorf("DeleteNote (create): expected: id = 4; actual: id = %d", resCreate.GetId())
+	}
+	log.Println("TestDeleteNote pass")
+
 	return nil
 }
