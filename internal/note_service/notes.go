@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"project11/internal/protos"
+	"strings"
 	"sync"
 
 	"google.golang.org/grpc/codes"
@@ -38,6 +39,7 @@ func (s *NoteServer) CreateNote(ctx context.Context, req *protos.NoteString) (*p
 }
 
 func (s *NoteServer) GetNote(ctx context.Context, req *protos.NoteId) (*protos.NoteString, error) {
+
 	s.mu.RLock()
 	res := s.notes[req.GetId()]
 	s.mu.RUnlock()
@@ -49,6 +51,7 @@ func (s *NoteServer) GetNote(ctx context.Context, req *protos.NoteId) (*protos.N
 }
 
 func (s *NoteServer) UpdateNote(ctx context.Context, req *protos.UpdateNoteRequest) (*protos.Empty, error) {
+
 	if req.GetName() == "" && req.GetContent() == "" {
 		return nil, status.Error(codes.InvalidArgument, "fields should not be empty")
 	}
@@ -65,4 +68,20 @@ func (s *NoteServer) UpdateNote(ctx context.Context, req *protos.UpdateNoteReque
 	s.notes[req.GetId()] = note{name: req.GetName(), content: req.GetContent()}
 	s.mu.Unlock()
 	return &protos.Empty{}, nil
+}
+
+func (s *NoteServer) SearchNotes(ctx context.Context, req *protos.SearchNotesRequest) (*protos.NoteIdRepeated, error) {
+
+	res := make([]int32, 0)
+
+	pattern := req.GetPattern()
+	s.mu.RLock()
+	for id, note := range s.notes {
+		if strings.Contains(note.name, pattern) || strings.Contains(note.content, pattern) {
+			res = append(res, id)
+		}
+	}
+	s.mu.RUnlock()
+
+	return &protos.NoteIdRepeated{Id: res}, nil
 }
