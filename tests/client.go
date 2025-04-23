@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"project11/internal/protos"
+	"project11/protos"
 	"slices"
 
 	"google.golang.org/grpc"

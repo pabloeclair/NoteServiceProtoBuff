@@ -3,7 +3,7 @@ package noteservice
 import (
 	"context"
 	"fmt"
-	"project11/internal/protos"
+	"project11/protos"
 	"strings"
 	"sync"
 

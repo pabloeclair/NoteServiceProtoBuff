@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/signal"
 	service "project11/internal"
-	"project11/internal/protos"
+	"project11/protos"
 	"project11/tests"
 	"syscall"
 

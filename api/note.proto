@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package project11;
 
-option go_package = "internal/protos";
+option go_package = "./protos;protos";
 option java_package = "ru.culab.week11";
 option java_multiple_files = true;
 
