@@ -6,7 +6,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
-	service "project11/internal/note_service"
+	service "project11/internal"
 	"project11/internal/protos"
 	"project11/tests"
 	"syscall"
