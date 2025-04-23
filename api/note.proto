@@ -12,6 +12,10 @@ message NoteId {
     int32 id = 1;
 }
 
+message NoteIdRepeated {
+    repeated int32 id = 1;
+}
+
 message NoteString {
     string name = 1;
     string content = 2;
@@ -32,5 +36,5 @@ service NoteService {
     rpc GetNote(NoteId) returns (NoteString);
     rpc UpdateNote(UpdateNoteRequest) returns (Empty);
     rpc DeleteNote(NoteId) returns (Empty);
-    rpc SearchNotes(SearchNotesRequest) returns (stream NoteId);
+    rpc SearchNotes(SearchNotesRequest) returns (NoteIdRepeated);
 }
