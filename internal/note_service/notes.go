@@ -47,3 +47,21 @@ func (s *NoteServer) GetNote(ctx context.Context, req *protos.NoteId) (*protos.N
 	noteRes := &protos.NoteString{Name: res.name, Content: res.content}
 	return noteRes, nil
 }
+
+func (s *NoteServer) UpdateNote(ctx context.Context, req *protos.UpdateNoteRequest) (*protos.Empty, error) {
+	if req.GetName() == "" && req.GetContent() == "" {
+		return nil, status.Error(codes.InvalidArgument, "fields should not be empty")
+	}
+
+	s.mu.RLock()
+	res := s.notes[req.GetId()]
+	if res.name == "" && res.content == "" {
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("note with if = %d not exists", req.GetId()))
+	}
+	s.mu.RUnlock()
+
+	s.mu.Lock()
+	s.notes[req.GetId()] = note{name: req.GetName(), content: req.GetContent()}
+	s.mu.Unlock()
+	return &protos.Empty{}, nil
+}
