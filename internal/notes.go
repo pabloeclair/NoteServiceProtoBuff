@@ -36,6 +36,7 @@ func (s *NoteServer) CreateNote(ctx context.Context, req *protos.NoteString) (*p
 		for k := range s.notes {
 			id = k
 		}
+		id++
 	}
 
 	s.mu.Lock()
