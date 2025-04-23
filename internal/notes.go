@@ -29,7 +29,14 @@ func (s *NoteServer) CreateNote(ctx context.Context, req *protos.NoteString) (*p
 	if req.GetName() == "" && req.GetContent() == "" {
 		return nil, status.Error(codes.InvalidArgument, "fields should not be empty")
 	}
-	id := int32(len(s.notes)) + 1
+	var id int32
+	if len(s.notes) == 0 {
+		id = 1
+	} else {
+		for k := range s.notes {
+			id = k
+		}
+	}
 
 	s.mu.Lock()
 	if s.notes == nil {
@@ -42,11 +49,13 @@ func (s *NoteServer) CreateNote(ctx context.Context, req *protos.NoteString) (*p
 
 func (s *NoteServer) GetNote(ctx context.Context, req *protos.NoteId) (*protos.NoteString, error) {
 
+	id := req.GetId()
+
 	s.mu.RLock()
-	res := s.notes[req.GetId()]
+	res := s.notes[id]
 	s.mu.RUnlock()
 	if res.name == "" && res.content == "" {
-		return nil, status.Error(codes.NotFound, fmt.Sprintf("note with id = %d not exists", req.GetId()))
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("note with id = %d not exists", id))
 	}
 	noteRes := &protos.NoteString{Name: res.name, Content: res.content}
 	return noteRes, nil
@@ -87,4 +96,21 @@ func (s *NoteServer) SearchNotes(ctx context.Context, req *protos.SearchNotesReq
 	slices.Sort(res)
 
 	return &protos.NoteIdRepeated{Id: res}, nil
+}
+
+func (s *NoteServer) DeleteNote(ctx context.Context, req *protos.NoteId) (*protos.Empty, error) {
+
+	id := req.GetId()
+
+	s.mu.RLock()
+	note := s.notes[id]
+	s.mu.RUnlock()
+	if note.name == "" && note.content == "" {
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("note with id = %d not exists", id))
+	}
+
+	s.mu.Lock()
+	delete(s.notes, id)
+	s.mu.Unlock()
+	return &protos.Empty{}, nil
 }
