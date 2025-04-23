@@ -40,10 +40,10 @@ func (s *NoteServer) CreateNote(ctx context.Context, req *protos.NoteString) (*p
 func (s *NoteServer) GetNote(ctx context.Context, req *protos.NoteId) (*protos.NoteString, error) {
 	s.mu.RLock()
 	res := s.notes[req.GetId()]
+	s.mu.RUnlock()
 	if res.name == "" && res.content == "" {
 		return nil, status.Error(codes.NotFound, fmt.Sprintf("note with if = %d not exists", req.GetId()))
 	}
-	s.mu.RUnlock()
 	noteRes := &protos.NoteString{Name: res.name, Content: res.content}
 	return noteRes, nil
 }
@@ -55,10 +55,11 @@ func (s *NoteServer) UpdateNote(ctx context.Context, req *protos.UpdateNoteReque
 
 	s.mu.RLock()
 	res := s.notes[req.GetId()]
+	s.mu.RUnlock()
+
 	if res.name == "" && res.content == "" {
 		return nil, status.Error(codes.NotFound, fmt.Sprintf("note with if = %d not exists", req.GetId()))
 	}
-	s.mu.RUnlock()
 
 	s.mu.Lock()
 	s.notes[req.GetId()] = note{name: req.GetName(), content: req.GetContent()}

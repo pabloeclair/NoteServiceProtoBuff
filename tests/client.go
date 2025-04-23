@@ -44,9 +44,10 @@ func TestService(addrs string) error {
 			`CreateNote (wrong): expected: err = not found; actual: err = %v"`, err,
 		)
 	}
+	log.Println("TestCreate pass")
 
 	// Test Get
-	resGet, err := client.GetNote(context.Background(), resCreate)
+	resGet, err := client.GetNote(context.Background(), &protos.NoteId{Id: 1})
 	if err != nil {
 		return fmt.Errorf("GetNote: %w", err)
 	}
@@ -69,6 +70,7 @@ func TestService(addrs string) error {
 			`GetNote (wrong): expected: err = not found; actual: err = %v"`, err,
 		)
 	}
+	log.Println("TestGet pass")
 
 	// Test Update
 	noteUpdate := &protos.UpdateNoteRequest{
@@ -76,20 +78,24 @@ func TestService(addrs string) error {
 		Name:    "Ютуб каналы",
 		Content: "MrLololoshka, Slimecicle, Kyngstom Myles",
 	}
+
 	_, err = client.UpdateNote(context.Background(), noteUpdate)
 	if err != nil {
 		return fmt.Errorf("UpdateNote (update): %w", err)
 	}
+
 	check, err := client.GetNote(context.Background(), &protos.NoteId{Id: 1})
 	if err != nil {
 		return fmt.Errorf("UpdateNote (get): %w", err)
 	}
+
 	if check.GetName() != "Ютуб каналы" || check.GetContent() != "MrLololoshka, Slimecicle, Kyngstom Myles" {
 		return fmt.Errorf(
 			`UpdateNote (get): Name = "Ютуб каналы", Content = "MrLololoshka, Slimecicle, Kyngstom Myles"; actual: Name = "%s", Content = "%s"`,
 			check.GetName(), check.GetContent(),
 		)
 	}
+	log.Println("TestUpdate pass")
 
 	return nil
 }
