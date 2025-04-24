@@ -121,7 +121,7 @@ func TestService(addrs string) error {
 	if err != nil {
 		return fmt.Errorf("SearchNotes: error: %w", err)
 	}
-	if !slices.Equal([]int32{1, 3}, listId.GetId()) {
+	if !slices.Equal([]int64{1, 3}, listId.GetId()) {
 		return fmt.Errorf(
 			`SerchNotes: expected: %v; actual: %v`, []int32{1, 3}, listId.GetId(),
 		)
