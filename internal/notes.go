@@ -16,7 +16,7 @@ import (
 type NoteServer struct {
 	protos.UnimplementedNoteServiceServer
 	mu    sync.RWMutex
-	notes map[int32]note
+	notes map[int64]note
 }
 
 type note struct {
@@ -29,7 +29,7 @@ func (s *NoteServer) CreateNote(ctx context.Context, req *protos.NoteString) (*p
 	if req.GetName() == "" && req.GetContent() == "" {
 		return nil, status.Error(codes.InvalidArgument, "fields should not be empty")
 	}
-	var id int32
+	var id int64
 	if len(s.notes) == 0 {
 		id = 1
 	} else {
@@ -41,7 +41,7 @@ func (s *NoteServer) CreateNote(ctx context.Context, req *protos.NoteString) (*p
 
 	s.mu.Lock()
 	if s.notes == nil {
-		s.notes = make(map[int32]note)
+		s.notes = make(map[int64]note)
 	}
 	s.notes[id] = note{name: req.GetName(), content: req.GetContent()}
 	s.mu.Unlock()
@@ -84,7 +84,7 @@ func (s *NoteServer) UpdateNote(ctx context.Context, req *protos.UpdateNoteReque
 
 func (s *NoteServer) SearchNotes(ctx context.Context, req *protos.SearchNotesRequest) (*protos.NoteIdRepeated, error) {
 
-	res := make([]int32, 0)
+	res := make([]int64, 0)
 
 	pattern := req.GetPattern()
 	s.mu.RLock()

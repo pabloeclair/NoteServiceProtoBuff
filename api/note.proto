@@ -9,11 +9,11 @@ option java_multiple_files = true;
 message Empty {}
 
 message NoteId {
-    int32 id = 1;
+    int64 id = 1;
 }
 
 message NoteIdRepeated {
-    repeated int32 id = 1;
+    repeated int64 id = 1;
 }
 
 message NoteString {
@@ -22,7 +22,7 @@ message NoteString {
 }
 
 message UpdateNoteRequest {
-    int32 id = 1;
+    int64 id = 1;
     string name = 2;
     string content = 3;
 }
