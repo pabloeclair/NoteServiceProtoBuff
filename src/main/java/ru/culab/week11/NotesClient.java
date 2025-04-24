@@ -1,48 +1,67 @@
 package ru.culab.week11;
 
+import java.util.List;
+
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 
 public class NotesClient implements NotesConnectable {
 
+    private ManagedChannel channel;
+    private NoteServiceGrpc.NoteServiceBlockingStub stub;
+
     @Override
     public void connectToServer(String hostName, int port) throws Exception {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'connectToServer'");
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(hostName, port).usePlaintext().build();
+        this.channel = channel;
+        this.stub = NoteServiceGrpc.newBlockingStub(channel);
     }
 
     @Override
     public void close() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'close'");
+        this.channel.shutdown();
     }
 
     @Override
     public long createNote(String title, String content) throws Exception {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createNote'");
+        NoteString req = NoteString.newBuilder().setName(title).setContent(content).build();
+        NoteId resp = this.stub.createNote(req);
+        return resp.getId();
     }
 
     @Override
     public String[] getNoteTitleAndContent(long id) throws Exception {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getNoteTitleAndContent'");
+        NoteId req = NoteId.newBuilder().setId(id).build();
+        NoteString resp = this.stub.getNote(req);
+        String[] result = new String[2];
+        result[0] = resp.getName();
+        result[1] = resp.getContent();
+        return result;
     }
 
     @Override
     public void updateNote(long id, String title, String content) throws Exception {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateNote'");
+        UpdateNoteRequest req = UpdateNoteRequest.newBuilder()
+            .setId(id)
+            .setName(title)
+            .setContent(content)
+            .build();
+        
+        this.stub.updateNote(req);
     }
 
     @Override
     public void deleteNote(long id) throws Exception {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteNote'");
+        NoteId req = NoteId.newBuilder().setId(id).build();
+        this.stub.deleteNote(req);
     }
 
     @Override
     public long[] searchNotes(String pattern) throws Exception {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'searchNotes'");
+        SearchNotesRequest req = SearchNotesRequest.newBuilder().setPattern(pattern).build();
+        NoteIdRepeated resp = this.stub.searchNotes(req);
+        List<Long> result = resp.getIdList();
+        return result.stream().mapToLong(l -> l).toArray();
     }
 
 
