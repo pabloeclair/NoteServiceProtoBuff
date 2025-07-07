@@ -1,0 +1,6 @@
+*.pb.go
+*.class
+**/build/
+**/generated/
+.gradle
+server
